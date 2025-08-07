@@ -21,6 +21,8 @@ public class UserController {
     public ResponseEntity<UserResponse> create(@Valid @RequestBody CreateUserRequest dto){
         return  ResponseEntity.ok(userService.createUser(dto));
     }
+
+
     @GetMapping
     public List<UserResponse> getAll(){
         return ResponseEntity.ok(userService.getAllUsers()).getBody();

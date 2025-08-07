@@ -5,6 +5,8 @@ import com.low3ee.webserver.dto.UserResponse;
 import com.low3ee.webserver.entity.User;
 import com.low3ee.webserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository repo;
     private final PasswordEncoder hash;
+    private final UserRepository userRepository;
 
     @Override
     public UserResponse createUser(CreateUserRequest dto) {
@@ -53,6 +56,16 @@ public class UserServiceImpl implements UserService{
             user.setPassword(hash.encode(dto.getPassword()));
         }
         return toDto(repo.save(user));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(), user.getPassword(), List.of()
+        );
     }
 
     public void deleteUser(String id){
