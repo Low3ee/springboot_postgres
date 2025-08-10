@@ -16,28 +16,32 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
-    private final PasswordEncoder hash;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authManager;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public void signup(CreateUserRequest request){
-        if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email already in use.");
+    public void signup(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already in use");
         }
+
         User user = new User();
         user.setEmail(request.getEmail());
         user.setFname(request.getFname());
         user.setLname(request.getLname());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userRepository.save(user);
     }
 
-    public String login(LoginRequest request){
-        Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+    public String login(LoginRequest request) {
+        Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
         );
 
-        return jwtTokenProvider.generateToken(auth.getName());
+        return jwtTokenProvider.generateToken(authentication.getName());
     }
 }

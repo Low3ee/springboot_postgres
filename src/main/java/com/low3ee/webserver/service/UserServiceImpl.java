@@ -19,7 +19,6 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository repo;
     private final PasswordEncoder hash;
-    private final UserRepository userRepository;
 
     @Override
     public UserResponse createUser(CreateUserRequest dto) {
@@ -60,7 +59,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = repo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return new org.springframework.security.core.userdetails.User(

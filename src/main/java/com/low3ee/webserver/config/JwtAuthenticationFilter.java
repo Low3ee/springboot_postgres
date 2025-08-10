@@ -1,25 +1,27 @@
 package com.low3ee.webserver.config;
 
-import com.low3ee.webserver.service.UserServiceImpl;
+import com.low3ee.webserver.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 
-@Component
-@RequiredArgsConstructor
+
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtProvider;
-    private final UserServiceImpl userDetailService;
+    private final UserService userService;
+
+    public JwtAuthenticationFilter(JwtTokenProvider jwtProvider, UserService userService) {
+        this.jwtProvider = jwtProvider;
+        this.userService = userService;
+    }
+
 
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -28,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(token != null && jwtProvider.validateToken(token)){
             String username = jwtProvider.getUsername(token);
-            UserDetails userdetails = userDetailService.loadUserByUsername(username);
+            UserDetails userdetails = userService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userdetails, null, userdetails.getAuthorities());
 

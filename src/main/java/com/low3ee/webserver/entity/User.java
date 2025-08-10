@@ -32,6 +32,12 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
+    @Column
+    private boolean enabled;
+
     private LocalDateTime createdAt;
 
     @PrePersist
